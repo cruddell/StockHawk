@@ -72,11 +72,11 @@ public class ApiHelper {
             urlc.setDoInput(true);
             urlc.setUseCaches(false);
 
+            urlc.setRequestProperty("Accept", "application/json");
 
             if (httpSendObj.jsonArray!=null || httpSendObj.jsonObject!=null) {
                 if (DEBUG_LOG) Log.d(TAG, "sending as type JSON");
                 urlc.setRequestProperty("Content-Type","application/json");
-                urlc.setRequestProperty("Accept", "application/json");
                 urlc.setRequestProperty("Content-Length", "" + (httpSendObj.jsonArray!=null ? httpSendObj.jsonArray.toString().length() : httpSendObj.jsonObject.toString().length()));
             }
             else {
