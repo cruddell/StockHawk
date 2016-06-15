@@ -1,8 +1,10 @@
 package com.sam_chordas.android.stockhawk.rest;
 
 import android.content.ContentProviderOperation;
+import android.content.Context;
 import android.util.Log;
 
+import com.sam_chordas.android.stockhawk.R;
 import com.sam_chordas.android.stockhawk.data.QuoteColumns;
 import com.sam_chordas.android.stockhawk.data.QuoteProvider;
 
@@ -21,7 +23,7 @@ public class Utils {
 
   public static boolean showPercent = true;
 
-  public static ArrayList quoteJsonToContentVals(String JSON){
+  public static ArrayList quoteJsonToContentVals(String JSON, Context context){
     //output json string to log for debug purposes
     Log.d(LOG_TAG, "quoteJsonToContentVals:\n" + JSON);
     ArrayList<ContentProviderOperation> batchOperations = new ArrayList<>();
@@ -36,14 +38,14 @@ public class Utils {
         if (count == 1){
           jsonObject = jsonObject.getJSONObject("results")
               .getJSONObject("quote");
-          batchOperations.add(buildBatchOperation(jsonObject));
+          batchOperations.add(buildBatchOperation(jsonObject, context));
         } else{
           resultsArray = jsonObject.getJSONObject("results").getJSONArray("quote");
 
           if (resultsArray != null && resultsArray.length() != 0){
             for (int i = 0; i < resultsArray.length(); i++){
               jsonObject = resultsArray.getJSONObject(i);
-              batchOperations.add(buildBatchOperation(jsonObject));
+              batchOperations.add(buildBatchOperation(jsonObject, context));
             }
           }
         }
@@ -67,7 +69,7 @@ public class Utils {
     return bidPrice;
   }
 
-  public static String truncateChange(String change, boolean isPercentChange){
+  public static String truncateChange(String change, boolean isPercentChange, Context context){
     String weight = change.substring(0,1);
     String ampersand = "";
     if (isPercentChange){
@@ -75,7 +77,16 @@ public class Utils {
       change = change.substring(0, change.length() - 1);
     }
     change = change.substring(1, change.length());
-    double round = (double) Math.round(Double.parseDouble(change) * 100) / 100;
+    double changeVal = 0;
+    try {
+      changeVal = Double.parseDouble(change);
+    }
+    catch (Exception e) {
+      Log.e("Utils", "Unable to parse string into Double:" + change);
+      return context.getResources().getString(R.string.not_available);  //if change comes back null, display appropriate "not available" text string
+    }
+
+    double round = (double) Math.round(changeVal * 100) / 100;
     change = String.format("%.2f", round);
     StringBuffer changeBuffer = new StringBuffer(change);
     changeBuffer.insert(0, weight);
@@ -84,7 +95,7 @@ public class Utils {
     return change;
   }
 
-  public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject){
+  public static ContentProviderOperation buildBatchOperation(JSONObject jsonObject, Context context){
     ContentProviderOperation.Builder builder = ContentProviderOperation.newInsert(
         QuoteProvider.Quotes.CONTENT_URI);
     try {
@@ -92,8 +103,8 @@ public class Utils {
       builder.withValue(QuoteColumns.SYMBOL, jsonObject.getString("symbol"));
       builder.withValue(QuoteColumns.BIDPRICE, truncateBidPrice(jsonObject.getString("Bid")));
       builder.withValue(QuoteColumns.PERCENT_CHANGE, truncateChange(
-          jsonObject.getString("ChangeinPercent"), true));
-      builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false));
+          jsonObject.getString("ChangeinPercent"), true, context));
+      builder.withValue(QuoteColumns.CHANGE, truncateChange(change, false, context));
       builder.withValue(QuoteColumns.ISCURRENT, 1);
       if (change.charAt(0) == '-'){
         builder.withValue(QuoteColumns.ISUP, 0);

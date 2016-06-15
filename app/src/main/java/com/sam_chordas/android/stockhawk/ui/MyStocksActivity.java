@@ -116,7 +116,7 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
                       new String[] { input.toString() }, null);
                   if (c.getCount() != 0) {
                     Toast toast =
-                        Toast.makeText(MyStocksActivity.this, "This stock is already saved!",
+                        Toast.makeText(MyStocksActivity.this, getResources().getString(R.string.stock_exists),
                             Toast.LENGTH_LONG);
                     toast.setGravity(Gravity.CENTER, Gravity.CENTER, 0);
                     toast.show();
@@ -203,6 +203,8 @@ public class MyStocksActivity extends AppCompatActivity implements LoaderManager
     if (id == R.id.action_change_units){
       // this is for changing stock changes from percent value to dollar value
       Utils.showPercent = !Utils.showPercent;
+      item.setIcon(Utils.showPercent ? getResources().getDrawable(R.drawable.ic_attach_money_white_24dp) : null);
+      item.setTitle(Utils.showPercent ? "" : getResources().getString(R.string.percentSign));
       this.getContentResolver().notifyChange(QuoteProvider.Quotes.CONTENT_URI, null);
     }
 

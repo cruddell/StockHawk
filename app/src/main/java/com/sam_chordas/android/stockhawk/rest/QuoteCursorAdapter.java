@@ -70,6 +70,12 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     } else{
       viewHolder.change.setText(cursor.getString(cursor.getColumnIndex("change")));
     }
+
+    //set contentDescription for accessibility
+    viewHolder.contentView.setContentDescription(viewHolder.symbol.getText().toString());
+    viewHolder.symbol.setContentDescription(viewHolder.symbol.getText().toString());
+    viewHolder.bidPrice.setContentDescription(viewHolder.bidPrice.getText().toString());
+    viewHolder.change.setContentDescription(viewHolder.change.getText().toString());
   }
 
   @Override public void onItemDismiss(int position) {
@@ -89,8 +95,10 @@ public class QuoteCursorAdapter extends CursorRecyclerViewAdapter<QuoteCursorAda
     public final TextView symbol;
     public final TextView bidPrice;
     public final TextView change;
+    public final View contentView;
     public ViewHolder(View itemView){
       super(itemView);
+      contentView = itemView;
       symbol = (TextView) itemView.findViewById(R.id.stock_symbol);
       symbol.setTypeface(robotoLight);
       bidPrice = (TextView) itemView.findViewById(R.id.bid_price);

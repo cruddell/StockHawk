@@ -3,6 +3,8 @@ package com.sam_chordas.android.stockhawk.ui.stock_detail;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -36,12 +38,15 @@ public class StockDetailActivity extends AppCompatActivity {
 
         mStockSymbol = getIntent().getStringExtra(ARG_STOCK_SYMBOL);
         getStockData(mStockSymbol);
+
+        ((TextView)findViewById(R.id.stockLabel)).setText(mStockSymbol);
     }
 
     private void getStockData(String stockSymbol) {
         ApiHelper.getStockDetails(stockSymbol, new ApiHelper.NetworkCallback() {
             @Override
             public void onResponseReceived(final ApiHelper.HttpResponse response) {
+                findViewById(R.id.progressBar).setVisibility(View.GONE);
                 try {
                     JSONObject jsonObject = (new JSONObject(response.responseBody)).getJSONObject("query");
                     Iterator<?> keys = jsonObject.keys();
